@@ -2,6 +2,13 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
 
+// slowly load image container
+document.addEventListener('DOMContentLoaded', () => {
+    const imageContainer = document.querySelector('.image-container');
+    imageContainer.classList.add('visible');
+});
+
+
 /**
  * Base
  */
