@@ -26,7 +26,7 @@
 
 .hero {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 100%;
@@ -48,4 +48,11 @@
 /* This class will be added by JavaScript */
 .image-container.visible {
     opacity: 1;
+}
+
+
+
+/* IFRAME */
+.mb {
+    margin-bottom: 2rem;
 }
