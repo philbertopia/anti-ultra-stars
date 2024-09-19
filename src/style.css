@@ -17,11 +17,13 @@
     position: absolute; /* Changed to absolute */
     top: 0;
     left: 0;
-    /* width: 100%; */
-    color: white;
+    width: 100%;
+    color: red;
     z-index: 2; /* Navbar will be above the canvas */
     padding: 10px;
-    /* text-align: center; */
+    font-weight: bold;
+    letter-spacing: 1rem;
+    text-align: center;
 }
 
 .hero {
@@ -35,19 +37,18 @@
     text-align: center;
 }
 
-.image-container {
-    opacity: 0;
-    transition: opacity 10s ease-in-out; /* Adjust duration and easing as needed */
+
+.soundcloud-container {
+    width: 90%;
+    display: flex;
+    gap: 1rem;
+    margin: auto;
+
 }
 
-.image-container img {
-    max-width: 100%;
-    height: auto;
-}
-
-/* This class will be added by JavaScript */
-.image-container.visible {
-    opacity: 1;
+.soundcloud-item {
+    width: 50%;
+    height: 100%;
 }
 
 

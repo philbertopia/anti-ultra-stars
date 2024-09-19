@@ -1,87 +1,96 @@
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import GUI from 'lil-gui'
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-// slowly load image container
-document.addEventListener('DOMContentLoaded', () => {
-    const imageContainer = document.querySelector('.image-container');
-    imageContainer.classList.add('visible');
-});
-
-
-/**
- * Base
- */
-// Debug
-// const gui = new GUI()
+// // Slowly load image container
+// document.addEventListener('DOMContentLoaded', () => {
+//     const imageContainer = document.querySelector('.image-container');
+//     imageContainer.classList.add('visible');
+// });
 
 // Canvas
-const canvas = document.querySelector('canvas.webgl')
-
-// Scene
-const scene = new THREE.Scene()
+const canvas = document.querySelector('canvas.webgl');
+const scene = new THREE.Scene();
 
 /**
  * Textures
  */
-const textureLoader = new THREE.TextureLoader()
+const textureLoader = new THREE.TextureLoader();
+const particleTexture1 = textureLoader.load('/textures/particles/red_no_trans.png');
+particleTexture1.magFilter = THREE.NearestFilter;
+particleTexture1.minFilter = THREE.NearestFilter;
+const particleTexture2 = textureLoader.load('/textures/particles/red_x_trans.png');
+particleTexture2.magFilter = THREE.NearestFilter;
+particleTexture2.minFilter = THREE.NearestFilter;
 
 /**
- * Test cube
+ * PARTICLES
  */
-// const cube = new THREE.Mesh(
-//     new THREE.BoxGeometry(1, 1, 1),
-//     new THREE.MeshBasicMaterial()
-// )
-// scene.add(cube)
-
-// PARTICLES
-// GEOMETRY
-// const particleGeometry = new THREE.SphereGeometry(1, 32, 32)
-const particlesGeometry = new THREE.BufferGeometry(1, 32, 32)
-const count = 5000
-
-const positions = new Float32Array(count * 3)
-
-// for(let i = 0; i < count * 3; i++) {
-//     positions[i] = (Math.random() - 0.5) * 10
-// }
-
-// Randomly distribute particles on the surface of a sphere
+const count = 100; // Number of particles
 const radius = 5;  // Radius of the sphere
 
+// Positions for particles1
+const positions1 = new Float32Array(count * 3);
 for (let i = 0; i < count; i++) {
-    // Spherical coordinates
-    const theta = Math.random() * 2 * Math.PI; // Random angle around the Z axis
-    const phi = Math.acos(2 * Math.random() - 1); // Random angle from the Z axis
+    const theta = Math.random() * 2 * Math.PI;
+    const phi = Math.acos(2 * Math.random() - 1);
+    
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.sin(phi) * Math.sin(theta);
+    const z = radius * Math.cos(phi); // Fixed missing closing parenthesis
 
-    // Convert spherical coordinates to Cartesian coordinates
+    positions1[i * 3] = x;
+    positions1[i * 3 + 1] = y;
+    positions1[i * 3 + 2] = z;
+}
+
+// Create geometry for particles1
+const particlesGeometry1 = new THREE.BufferGeometry();
+particlesGeometry1.setAttribute('position', new THREE.BufferAttribute(positions1, 3));
+
+// Create material for particles1
+const particleMaterial1 = new THREE.PointsMaterial({
+    size: 0.5,
+    sizeAttenuation: true,
+    map: particleTexture1,
+    alphaTest: 0.5,
+    transparent: true, // Enable transparency
+});
+
+// Create points for particles1
+const particles1 = new THREE.Points(particlesGeometry1, particleMaterial1);
+scene.add(particles1);
+
+// Positions for particles2
+const positions2 = new Float32Array(count * 3);
+for (let i = 0; i < count; i++) {
+    const theta = Math.random() * 2 * Math.PI;
+    const phi = Math.acos(2 * Math.random() - 1);
+    
     const x = radius * Math.sin(phi) * Math.cos(theta);
     const y = radius * Math.sin(phi) * Math.sin(theta);
     const z = radius * Math.cos(phi);
 
-    // Set the positions array
-    positions[i * 3] = x;
-    positions[i * 3 + 1] = y;
-    positions[i * 3 + 2] = z;
+    positions2[i * 3] = x;
+    positions2[i * 3 + 1] = y;
+    positions2[i * 3 + 2] = z;
 }
 
+// Create geometry for particles2
+const particlesGeometry2 = new THREE.BufferGeometry();
+particlesGeometry2.setAttribute('position', new THREE.BufferAttribute(positions2, 3));
 
-particlesGeometry.setAttribute(
-    'position',
-    new THREE.BufferAttribute(positions, 3)
-)
-
-// MATERIAL
-const particleMaterial = new THREE.PointsMaterial({
-    size: 0.03,
+// Create material for particles2
+const particleMaterial2 = new THREE.PointsMaterial({
+    size: 0.5,
     sizeAttenuation: true,
+    map: particleTexture2,
+    alphaTest: 0.5,
+    transparent: true, // Enable transparency
+});
 
-})
-
-//POINTS
-const particles = new THREE.Points(particlesGeometry, particleMaterial)
-scene.add(particles)
+// Create points for particles2
+const particles2 = new THREE.Points(particlesGeometry2, particleMaterial2);
+scene.add(particles2);
 
 /**
  * Sizes
@@ -89,90 +98,86 @@ scene.add(particles)
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
-}
+};
 
-window.addEventListener('resize', () =>
-{
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
+window.addEventListener('resize', () => {
+    sizes.width = window.innerWidth;
+    sizes.height = window.innerHeight;
 
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
+    camera.aspect = sizes.width / sizes.height;
+    camera.updateProjectionMatrix();
 
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-})
+    renderer.setSize(sizes.width, sizes.height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
 
 /**
  * Camera
  */
-// Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.z = 3
-scene.add(camera)
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
+camera.position.z = 3;
+scene.add(camera);
 
 // Controls
-const controls = new OrbitControls(camera, canvas)
-controls.enableDamping = true
-controls.enableZoom = false; // Disable zooming with the scroll wheel
-controls.enableRotate = true; // Ensure rotation is enabled
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.enableZoom = false;
+controls.enableRotate = true;
 
 /**
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas
-})
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+});
+renderer.setSize(sizes.width, sizes.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
  * Animate
  */
-const clock = new THREE.Clock()
+const clock = new THREE.Clock();
 
-const tick = () =>
-{
-    const elapsedTime = clock.getElapsedTime()
+const tick = () => {
+    const elapsedTime = clock.getElapsedTime();
 
     // Update particles rotation
-    particles.rotation.x -= 0.0002; // Rotate slowly along the y-axis
+    particles1.rotation.x -= 0.0002; // Rotate particles1
+    particles2.rotation.x += 0.0002; // Rotate particles2 in the opposite direction
 
     // Update controls
-    controls.update()
+    controls.update();
 
     // Render
-    renderer.render(scene, camera)
+    renderer.render(scene, camera);
 
     // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
-}
+    window.requestAnimationFrame(tick);
+};
 
-tick()
+tick();
 
 
-// CLOCK
-function updateClock() {
-    const now = new Date();
-    const second = now.getSeconds();
-    const minute = now.getMinutes();
-    const hour = now.getHours();
 
-    const secondHand = document.querySelector('.second-hand');
-    const minuteHand = document.querySelector('.minute-hand');
-    const hourHand = document.querySelector('.hour-hand');
+// // CLOCK
+// function updateClock() {
+//     const now = new Date();
+//     const second = now.getSeconds();
+//     const minute = now.getMinutes();
+//     const hour = now.getHours();
 
-    const secondDegrees = (second / 60) * 360 + 90;
-    const minuteDegrees = (minute / 60) * 360 + (second / 60) * 6 + 90;
-    const hourDegrees = (hour / 12) * 360 + (minute / 60) * 30 + 90;
+//     const secondHand = document.querySelector('.second-hand');
+//     const minuteHand = document.querySelector('.minute-hand');
+//     const hourHand = document.querySelector('.hour-hand');
 
-    secondHand.style.transform = `rotate(${secondDegrees}deg)`;
-    minuteHand.style.transform = `rotate(${minuteDegrees}deg)`;
-    hourHand.style.transform = `rotate(${hourDegrees}deg)`;
-}
+//     const secondDegrees = (second / 60) * 360 + 90;
+//     const minuteDegrees = (minute / 60) * 360 + (second / 60) * 6 + 90;
+//     const hourDegrees = (hour / 12) * 360 + (minute / 60) * 30 + 90;
 
-setInterval(updateClock, 1000);
-updateClock(); // Initial call to set the clock immediately
+//     secondHand.style.transform = `rotate(${secondDegrees}deg)`;
+//     minuteHand.style.transform = `rotate(${minuteDegrees}deg)`;
+//     hourHand.style.transform = `rotate(${hourDegrees}deg)`;
+// }
+
+// setInterval(updateClock, 1000);
+// updateClock(); // Initial call to set the clock immediately
